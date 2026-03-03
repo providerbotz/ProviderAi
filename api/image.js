@@ -2,21 +2,22 @@ export default async function handler(req, res) {
   const { prompt } = req.query;
 
   if (!prompt) {
-    return res.status(400).json({ error: "Prompt is required" });
+    return res.status(400).send("Prompt is required");
   }
 
   try {
     const imageUrl =
       "https://image.pollinations.ai/prompt/" +
-      encodeURIComponent(prompt) +
-      "?width=1024&height=1024&model=flux&nologo=true";
+      encodeURIComponent(prompt);
 
-    return res.status(200).json({
-      success: true,
-      image: imageUrl
-    });
+    const response = await fetch(imageUrl);
+
+    const buffer = await response.arrayBuffer();
+
+    res.setHeader("Content-Type", "image/png");
+    res.send(Buffer.from(buffer));
 
   } catch (error) {
-    return res.status(500).json({ error: "Image generation failed" });
+    res.status(500).send("Image generation failed");
   }
 }
