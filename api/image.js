@@ -8,16 +8,24 @@ export default async function handler(req, res) {
   try {
     const imageUrl =
       "https://image.pollinations.ai/prompt/" +
-      encodeURIComponent(prompt);
+      encodeURIComponent(prompt) +
+      "?width=1024&height=1024&model=flux&nologo=true";
 
     const response = await fetch(imageUrl);
 
-    const buffer = await response.arrayBuffer();
+    if (!response.ok) {
+      return res.status(500).send("Image fetch failed");
+    }
 
-    res.setHeader("Content-Type", "image/png");
-    res.send(Buffer.from(buffer));
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    res.setHeader("Content-Type", "image/jpeg");
+    res.setHeader("Cache-Control", "public, max-age=86400");
+
+    return res.status(200).send(buffer);
 
   } catch (error) {
-    res.status(500).send("Image generation failed");
+    return res.status(500).send("Image generation failed");
   }
 }
