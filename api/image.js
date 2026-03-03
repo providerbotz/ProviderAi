@@ -6,14 +6,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Pollinations Image URL
     const imageUrl =
       "https://image.pollinations.ai/prompt/" +
       encodeURIComponent(prompt) +
       "?width=1024&height=1024&model=flux&nologo=true";
 
-    // Direct image redirect
-    return res.redirect(imageUrl);
+    return res.status(200).json({
+      success: true,
+      image: imageUrl
+    });
 
   } catch (error) {
     return res.status(500).json({ error: "Image generation failed" });
